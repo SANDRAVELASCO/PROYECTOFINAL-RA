@@ -10,8 +10,8 @@
       overflow: hidden; 
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
-    /* Contenedor general de botones */
     #controlPanel {
+      display: none;
       position: fixed;
       bottom: 20px;
       left: 50%;
@@ -20,12 +20,12 @@
       padding: 15px 20px;
       border-radius: 15px;
       box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-      display: flex;
       flex-wrap: wrap;
       justify-content: center;
       gap: 10px;
       max-width: 600px;
       z-index: 10;
+      display: flex;
     }
     #textoUsuario {
       width: 220px;
@@ -61,7 +61,7 @@
   <div id="controlPanel">
     <input type="text" id="textoUsuario" placeholder="Escribe en español..." />
     <button id="btnTraducir">Traducir</button>
-    <button id="btnHablar">Hablar</button>
+    <button id="btnHablar">Escuchar Traducción</button>
     <button onclick="rotarModelo()">Rotar</button>
     <button onclick="acercarModelo()">Acercar</button>
     <button onclick="alejarModelo()">Alejar</button>
@@ -69,7 +69,6 @@
 
   <a-scene embedded arjs>
     <a-marker preset="hiro">
-      <!-- Modelo 3D con ID para manipular -->
       <a-entity id="modelo" gltf-model="modelo/asis.glb"
                 position="0 0 0" rotation="0 180 0" scale="0.5 0.5 0.5">
       </a-entity>
@@ -79,54 +78,91 @@
   </a-scene>
 
   <script>
-    let modelo = document.getElementById('modelo');
-    let escala = 0.5;
-    let rotacionY = 180;
+    document.addEventListener('DOMContentLoaded', () => {
+      const controlPanel = document.getElementById('controlPanel');
+      controlPanel.style.display = 'none';
 
-    // Traducción sencilla (puedes usar API en el futuro)
-    function traducir(texto) {
+      let modelo = document.getElementById('modelo');
+      let escala = 0.5;
+      let rotacionY = 180;
+
+      // Diccionario con más datos de entrenamiento
       const diccionario = {
         "hola": "hello",
         "adiós": "goodbye",
         "gracias": "thank you",
-        "soy tu asistente virtual": "I am your virtual assistant"
+        "por favor": "please",
+        "lo siento": "sorry",
+        "bien": "good",
+        "mal": "bad",
+        "sí": "yes",
+        "no": "no",
+        "cómo estás": "how are you",
+        "estoy bien": "i am fine",
+        "buenos días": "good morning",
+        "buenas tardes": "good afternoon",
+        "buenas noches": "good night",
+        "¿qué hora es?": "what time is it?",
+        "me llamo": "my name is",
+        "¿dónde estás?": "where are you?",
+        "soy tu asistente virtual": "i am your virtual assistant"
       };
 
-      let palabras = texto.toLowerCase().split(" ");
-      let traduccion = palabras.map(p => diccionario[p] || p).join(" ");
-      return traduccion;
-    }
+      function traducir(texto) {
+        let frase = texto.toLowerCase().trim();
 
-    document.getElementById('btnTraducir').addEventListener('click', function () {
-      const texto = document.getElementById('textoUsuario').value;
-      const traducido = traducir(texto);
-      alert("Traducción al inglés: " + traducido);
-    });
+        // Si coincide con una frase entera en el diccionario
+        if (diccionario[frase]) {
+          return diccionario[frase];
+        }
 
-    document.getElementById('btnHablar').addEventListener('click', function () {
-      const texto = document.getElementById('textoUsuario').value;
-      const traducido = traducir(texto);
-      const voz = new SpeechSynthesisUtterance(traducido);
-      voz.lang = 'en-US';
-      speechSynthesis.speak(voz);
-    });
+        // Si no, intentamos traducir palabra por palabra
+        let palabras = frase.split(/\s+/); // divide por espacios múltiples
+        let traduccion = palabras.map(p => diccionario[p] || p).join(" ");
+        return traduccion;
+      }
 
-    function rotarModelo() {
-      rotacionY += 45;
-      modelo.setAttribute('rotation', `0 ${rotacionY} 0`);
-    }
+      document.getElementById('btnTraducir').addEventListener('click', function () {
+        const texto = document.getElementById('textoUsuario').value;
+        const traducido = traducir(texto);
+        alert("Traducción al inglés: " + traducido);
+      });
 
-    function acercarModelo() {
-      escala += 0.1;
-      modelo.setAttribute('scale', `${escala} ${escala} ${escala}`);
-    }
+      document.getElementById('btnHablar').addEventListener('click', function () {
+        const texto = document.getElementById('textoUsuario').value;
+        const traducido = traducir(texto);
+        const voz = new SpeechSynthesisUtterance(traducido);
+        voz.lang = 'en-US';
+        speechSynthesis.speak(voz);
+      });
 
-    function alejarModelo() {
-      if (escala > 0.1) {
-        escala -= 0.1;
+      window.rotarModelo = function () {
+        rotacionY += 45;
+        modelo.setAttribute('rotation', `0 ${rotacionY} 0`);
+      }
+
+      window.acercarModelo = function () {
+        escala += 0.1;
         modelo.setAttribute('scale', `${escala} ${escala} ${escala}`);
       }
-    }
+
+      window.alejarModelo = function () {
+        if (escala > 0.1) {
+          escala -= 0.1;
+          modelo.setAttribute('scale', `${escala} ${escala} ${escala}`);
+        }
+      }
+
+      const marker = document.querySelector('a-marker');
+
+      marker.addEventListener('markerFound', () => {
+        controlPanel.style.display = 'flex';
+      });
+
+      marker.addEventListener('markerLost', () => {
+        controlPanel.style.display = 'none';
+      });
+    });
   </script>
 </body>
 </html>
