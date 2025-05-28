@@ -31,16 +31,16 @@
       width: 220px;
       padding: 10px 12px;
       font-size: 16px;
-      border: 2px solid #1bbfc5;
+      border: 2px solid #5b86e5;
       border-radius: 8px;
       outline: none;
       transition: border-color 0.3s;
     }
     #textoUsuario:focus {
-      border-color: #671fe4;
+      border-color: #36d1dc;
     }
     button {
-      background: linear-gradient(to right, #2626e6, #5b86e5);
+      background: linear-gradient(to right, #36d1dc, #5b86e5);
       border: none;
       color: white;
       padding: 10px 18px;
@@ -87,16 +87,9 @@
     function traducir(texto) {
       const diccionario = {
         "hola": "hello",
-        "adios": "goodbye",
+        "adiós": "goodbye",
         "gracias": "thank you",
-        "soy tu asistente virtual": "I am your virtual assistant",
-        "gato": "cat",
-        "perro": "dog",
-        "caballo": "horse",
-        "hola mucho gusto": "Hi, nice to meet you",
-        "comoestas": "how are you?",
-        "cual es tu nombre": "what's your name?",
-        "hola, mi nombre es Sandra": "Hi, my name is Sandra"
+        "soy tu asistente virtual": "I am your virtual assistant"
       };
 
       let palabras = texto.toLowerCase().split(" ");
