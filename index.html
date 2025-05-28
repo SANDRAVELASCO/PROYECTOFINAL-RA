@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Mi Asistente 3D AR</title>
+  <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+  <script src="https://cdn.rawgit.com/jeromeetienne/ar.js/1.7.2/aframe/build/aframe-ar.min.js"></script>
+  <style>
+    body, html {
+      margin: 0; 
+      overflow: hidden; 
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    /* Contenedor general de botones */
+    #controlPanel {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255, 255, 255, 0.9);
+      padding: 15px 20px;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      max-width: 600px;
+      z-index: 10;
+    }
+    #textoUsuario {
+      width: 220px;
+      padding: 10px 12px;
+      font-size: 16px;
+      border: 2px solid #1bbfc5;
+      border-radius: 8px;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+    #textoUsuario:focus {
+      border-color: #671fe4;
+    }
+    button {
+      background: linear-gradient(to right, #2626e6, #5b86e5);
+      border: none;
+      color: white;
+      padding: 10px 18px;
+      font-size: 16px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      min-width: 90px;
+    }
+    button:hover {
+      transform: scale(1.1);
+      box-shadow: 0 0 10px #36d1dc;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="controlPanel">
+    <input type="text" id="textoUsuario" placeholder="Escribe en español..." />
+    <button id="btnTraducir">Traducir</button>
+    <button id="btnHablar">Hablar</button>
+    <button onclick="rotarModelo()">Rotar</button>
+    <button onclick="acercarModelo()">Acercar</button>
+    <button onclick="alejarModelo()">Alejar</button>
+  </div>
+
+  <a-scene embedded arjs>
+    <a-marker preset="hiro">
+      <!-- Modelo 3D con ID para manipular -->
+      <a-entity id="modelo" gltf-model="modelo/asis.glb"
+                position="0 0 0" rotation="0 180 0" scale="0.5 0.5 0.5">
+      </a-entity>
+    </a-marker>
+
+    <a-entity camera></a-entity>
+  </a-scene>
+
+  <script>
+    let modelo = document.getElementById('modelo');
+    let escala = 0.5;
+    let rotacionY = 180;
+
+    // Traducción sencilla (puedes usar API en el futuro)
+    function traducir(texto) {
+      const diccionario = {
+        "hola": "hello",
+        "adios": "goodbye",
+        "gracias": "thank you",
+        "soy tu asistente virtual": "I am your virtual assistant",
+        "gato": "cat",
+        "perro": "dog",
+        "caballo": "horse",
+        "hola mucho gusto": "Hi, nice to meet you",
+        "comoestas": "how are you?",
+        "cual es tu nombre": "what's your name?",
+        "hola, mi nombre es Sandra": "Hi, my name is Sandra"
+      };
+
+      let palabras = texto.toLowerCase().split(" ");
+      let traduccion = palabras.map(p => diccionario[p] || p).join(" ");
+      return traduccion;
+    }
+
+    document.getElementById('btnTraducir').addEventListener('click', function () {
+      const texto = document.getElementById('textoUsuario').value;
+      const traducido = traducir(texto);
+      alert("Traducción al inglés: " + traducido);
+    });
+
+    document.getElementById('btnHablar').addEventListener('click', function () {
+      const texto = document.getElementById('textoUsuario').value;
+      const traducido = traducir(texto);
+      const voz = new SpeechSynthesisUtterance(traducido);
+      voz.lang = 'en-US';
+      speechSynthesis.speak(voz);
+    });
+
+    function rotarModelo() {
+      rotacionY += 45;
+      modelo.setAttribute('rotation', `0 ${rotacionY} 0`);
+    }
+
+    function acercarModelo() {
+      escala += 0.1;
+      modelo.setAttribute('scale', `${escala} ${escala} ${escala}`);
+    }
+
+    function alejarModelo() {
+      if (escala > 0.1) {
+        escala -= 0.1;
+        modelo.setAttribute('scale', `${escala} ${escala} ${escala}`);
+      }
+    }
+  </script>
+</body>
+</html>
